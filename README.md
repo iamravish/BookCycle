@@ -54,7 +54,7 @@ npm run client:dev
 - Backend: `http://localhost:5000`
 - Frontend: `http://localhost:5173`
 
-## ??? Project Structure
+## Project Structure
 
 ```
 bookswap-backend/
@@ -74,7 +74,7 @@ bookswap-backend/
 +-- package.json
 ```
 
-## ?? API Overview
+## API Overview
 
 ### Auth
 
@@ -116,7 +116,7 @@ bookswap-backend/
 - `POST /api/users/wishlist/:listingId` — toggle wishlist
 - `POST /api/users/:id/review` — leave a review
 
-## ?? Admin / Moderation
+## Admin / Moderation
 
 - Admins are identified by `User.isAdmin`
 - The frontend exposes `/admin` for admin users
@@ -125,14 +125,14 @@ bookswap-backend/
 
 To make a user an admin, set `isAdmin = true` for that user in the database, for example via Prisma Studio or SQL.
 
-## ? Seeded Accounts
+## Seeded Accounts
 
 After `npm run db:seed`, two sample users are available:
 
 - `alice@bookswap.com` / `password123`
 - `bob@bookswap.com` / `password123`
 
-## ??? Commands
+## Commands
 
 ```bash
 npm run dev
