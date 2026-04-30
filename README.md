@@ -1,246 +1,151 @@
-# 📚 BookSwap Backend API
+# ?? BookSwap Backend
 
-> OLX for books — buy, sell, rent, and swap books with fellow readers.
+BookSwap is the marketplace API for buying, selling, renting, and swapping books locally.
 
 Built with **Node.js + Express**, **PostgreSQL**, and **Prisma ORM**.
 
----
-
-## 🚀 Getting Started
+## ?? Quick Start
 
 ### Prerequisites
 - Node.js v18+
 - PostgreSQL 14+
 
-### 1. Install dependencies
+### Install dependencies
 
 ```bash
-cd bookswap-backend
 npm install
+npm --prefix frontend install
 ```
 
-### 2. Configure environment
+### Configure environment
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and fill in your PostgreSQL connection string:
-```
+Edit `.env` with your PostgreSQL URL and JWT secret:
+
+```env
 DATABASE_URL="postgresql://postgres:yourpassword@localhost:5432/bookswap_db"
 JWT_SECRET="change-this-to-a-random-secret"
 ```
 
-### 3. Set up the database
+### Database setup
 
 ```bash
-# Create DB and run migrations
-npx prisma migrate dev --name init
-
-# Generate Prisma client
-npx prisma generate
-
-# (Optional) Seed with sample data
+npm run db:migrate
+npm run db:generate
 npm run db:seed
 ```
 
-### 4. Start the server
+Use Prisma Studio for inspection:
 
 ```bash
-# Development (with auto-reload)
+npm run db:studio
+```
+
+### Run the app
+
+```bash
 npm run dev
-
-# Production
-npm start
+npm run client:dev
 ```
 
-Server runs at: `http://localhost:5000`
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:5173`
 
----
-
-## 📡 API Reference
-
-### Auth — `/api/auth`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/register` | ❌ | Create account |
-| POST | `/login` | ❌ | Login, returns JWT |
-| GET | `/me` | ✅ | Get own profile |
-| PATCH | `/change-password` | ✅ | Change password |
-
-**Register body:**
-```json
-{
-  "name": "Alice Sharma",
-  "email": "alice@example.com",
-  "password": "securepassword",
-  "phone": "9876543210",
-  "city": "Mumbai",
-  "state": "Maharashtra"
-}
-```
-
-**Auth header for protected routes:**
-```
-Authorization: Bearer <token>
-```
-
----
-
-### Listings — `/api/listings`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/` | ❌ | Browse listings (with filters) |
-| GET | `/:id` | ❌ | Get single listing |
-| GET | `/my` | ✅ | My listings |
-| POST | `/` | ✅ | Create listing (multipart/form-data) |
-| PATCH | `/:id` | ✅ | Update listing |
-| DELETE | `/:id` | ✅ | Delete listing |
-
-**Query params for GET /:**
-- `search` — text search across title, author, ISBN
-- `genre` — FICTION, NON_FICTION, TEXTBOOK, etc.
-- `condition` — NEW, LIKE_NEW, GOOD, ACCEPTABLE, POOR
-- `listingType` — SELL, RENT, SWAP, SELL_OR_SWAP, RENT_OR_SELL
-- `city`, `state`
-- `minPrice`, `maxPrice`
-- `sortBy` — createdAt, price, views (default: createdAt)
-- `order` — asc, desc
-- `page`, `limit`
-
-**Create listing body (multipart/form-data):**
-```
-title, author, description, isbn, genre, condition, price,
-listingType, rentPerDay, city, state, images (up to 5 files)
-```
-
-**Listing types:**
-- `SELL` — selling only
-- `RENT` — renting only
-- `SWAP` — book swap only
-- `SELL_OR_SWAP` — flexible
-- `RENT_OR_SELL` — flexible
-
----
-
-### Offers — `/api/offers`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | ✅ | Make an offer |
-| GET | `/received` | ✅ | Offers on my listings |
-| GET | `/sent` | ✅ | Offers I've made |
-| PATCH | `/:id/respond` | ✅ | Accept or reject |
-| PATCH | `/:id/withdraw` | ✅ | Withdraw offer |
-
-**Make offer body:**
-```json
-{
-  "listingId": "uuid",
-  "type": "BUY",
-  "message": "I'm interested!",
-  "price": 120
-}
-```
-
-For rent: include `"rentDays": 7`
-For swap: include `"swapBookTitle": "Sapiens"`
-
-**Respond body:**
-```json
-{ "status": "ACCEPTED" }
-```
-
-When a seller accepts an offer:
-- Listing is marked unavailable
-- All other pending offers are auto-rejected
-
----
-
-### Messages — `/api/messages`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/` | ✅ | Send a message |
-| GET | `/inbox` | ✅ | All conversations |
-| GET | `/unread/count` | ✅ | Unread count badge |
-| GET | `/:userId` | ✅ | Conversation with user |
-
-**Send message body:**
-```json
-{
-  "receiverId": "uuid",
-  "content": "Is this still available?",
-  "listingId": "uuid"
-}
-```
-
----
-
-### Users — `/api/users`
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/:id` | ❌ | Public profile |
-| PATCH | `/profile` | ✅ | Update own profile |
-| GET | `/wishlist` | ✅ | My wishlist |
-| POST | `/wishlist/:listingId` | ✅ | Toggle wishlist |
-| POST | `/:id/review` | ✅ | Leave a review (1–5 stars) |
-
----
-
-## 🗂️ Project Structure
+## ??? Project Structure
 
 ```
 bookswap-backend/
-├── prisma/
-│   ├── schema.prisma        # All DB models & enums
-│   └── seed.js              # Sample data
-├── src/
-│   ├── index.js             # Express app entry point
-│   ├── routes/
-│   │   ├── auth.routes.js
-│   │   ├── listing.routes.js
-│   │   ├── offer.routes.js
-│   │   ├── message.routes.js
-│   │   └── user.routes.js
-│   ├── controllers/
-│   │   ├── auth.controller.js
-│   │   ├── listing.controller.js
-│   │   ├── offer.controller.js
-│   │   ├── message.controller.js
-│   │   └── user.controller.js
-│   ├── middleware/
-│   │   ├── auth.middleware.js   # JWT verify
-│   │   ├── error.middleware.js  # Global error handler
-│   │   └── upload.middleware.js # Multer image uploads
-│   └── utils/
-│       └── jwt.utils.js
-├── uploads/                 # Stored images (gitignored)
-├── .env.example
-└── package.json
++-- frontend/                # React app
++-- prisma/
+�   +-- migrations/         # Prisma migration files
+�   +-- schema.prisma        # DB schema and enums
+�   +-- seed.js              # sample data seeding
++-- src/
+�   +-- controllers/         # request handlers
+�   +-- middleware/          # auth, uploads, error handling
+�   +-- routes/              # Express routers
+�   +-- utils/               # shared helpers
+�   +-- index.js             # app entrypoint
++-- uploads/                 # image storage
++-- .env.example
++-- package.json
 ```
 
----
+## ?? API Overview
 
-## 📦 Key Design Decisions
+### Auth
 
-- **Prisma** over raw SQL — type-safe queries, easy migrations, clean schema
-- **UUID primary keys** — safe to expose in URLs, no sequential guessing
-- **Soft listing closure** — accepting an offer auto-rejects other pending offers and marks the listing unavailable
-- **Optional auth** on browse endpoints — logged-in users can see extra fields (wishlist status, etc.)
-- **Rate limiting** — 200 req/15min globally, 20 req/15min on auth routes
-- **Image uploads** — stored locally to `/uploads`, served as static files. Swap out multer storage for S3/Cloudinary in production
+- `POST /api/auth/register` � create account
+- `POST /api/auth/login` � login and receive JWT
+- `GET /api/auth/me` � current user profile
+- `PATCH /api/auth/change-password` � update password
 
----
+### Listings
 
-## 🔮 What's Next
+- `GET /api/listings` � browse listings
+- `GET /api/listings/:id` � listing detail
+- `GET /api/listings/my` � current user listings
+- `POST /api/listings` � create listing
+- `PATCH /api/listings/:id` � update listing
+- `DELETE /api/listings/:id` � delete listing
+- `POST /api/listings/:id/report` � report a listing
+- `GET /api/listings/reports` � admin only list of reported listings
 
-- [ ] Frontend (React)
-- [ ] Email notifications (Nodemailer)
-- [ ] Real-time chat (Socket.io)
-- [ ] Image hosting on Cloudinary
-- [ ] Search with Elasticsearch or Postgres full-text
-- [ ] Admin dashboard
+### Offers
+
+- `POST /api/offers` � create an offer
+- `GET /api/offers/sent` � sent offers
+- `GET /api/offers/received` � received offers
+- `PATCH /api/offers/:id/respond` � accept or reject
+
+### Messages
+
+- `POST /api/messages` � send a message
+- `GET /api/messages/inbox` � fetch conversations
+- `GET /api/messages/unread/count` � unread badge
+- `GET /api/messages/:userId` � fetch conversation with a user
+
+### Users
+
+- `GET /api/users/:id` � public profile
+- `PATCH /api/users/profile` � update own profile
+- `GET /api/users/wishlist` � get wishlist
+- `POST /api/users/wishlist/:listingId` � toggle wishlist
+- `POST /api/users/:id/review` � leave a review
+
+## ?? Admin / Moderation
+
+- Admins are identified by `User.isAdmin`
+- The frontend exposes `/admin` for admin users
+- Reports are stored in `ListingReport`
+- Admin routes are protected by `authorizeAdmin`
+
+To make a user an admin, set `isAdmin = true` for that user in the database, for example via Prisma Studio or SQL.
+
+## ? Seeded Accounts
+
+After `npm run db:seed`, two sample users are available:
+
+- `alice@bookswap.com` / `password123`
+- `bob@bookswap.com` / `password123`
+
+## ??? Commands
+
+```bash
+npm run dev
+npm run client:dev
+npm run client:build
+npm run db:migrate
+npm run db:generate
+npm run db:studio
+npm run db:seed
+```
+
+## Notes
+
+- Images are stored locally in `/uploads`
+- Auth uses `Authorization: Bearer <token>`
+- Frontend and backend run separately for development
