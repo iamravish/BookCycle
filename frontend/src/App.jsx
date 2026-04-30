@@ -113,6 +113,11 @@ const formatName = (name, fallback = "Reader") => {
 
 const getInitial = (name, fallback = "R") => formatName(name, fallback).slice(0, 1).toUpperCase();
 
+const getListingInitial = (title) => {
+  const trimmed = String(title || "").trim();
+  return trimmed ? trimmed.charAt(0).toUpperCase() : "B";
+};
+
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("bookswap-token") || "");
   const [user, setUser] = useState(null);
@@ -126,6 +131,9 @@ function App() {
   const [deleteLoadingId, setDeleteLoadingId] = useState("");
   const detailPanelRef = useRef(null);
   const [wishlistIds, setWishlistIds] = useState([]);
+  const [adminReports, setAdminReports] = useState([]);
+  const [adminReportsLoading, setAdminReportsLoading] = useState(false);
+  const [reportLoadingId, setReportLoadingId] = useState("");
   const [sentOffers, setSentOffers] = useState([]);
   const [receivedOffers, setReceivedOffers] = useState([]);
   const [conversations, setConversations] = useState([]);
@@ -166,6 +174,8 @@ function App() {
     setMessages([]);
     setUnreadCount(0);
     setSelectedConversationUserId("");
+    setAdminReports([]);
+    setAdminReportsLoading(false);
     setToken("");
   };
 
@@ -317,6 +327,20 @@ function App() {
           city: current.city || profileData.user.city || "",
           state: current.state || profileData.user.state || "",
         }));
+
+        if (profileData.user?.isAdmin) {
+          setAdminReportsLoading(true);
+          try {
+            const adminReportsData = await endpoints.getListingReports(token);
+            setAdminReports(adminReportsData.reports || []);
+          } finally {
+            setAdminReportsLoading(false);
+          }
+        } else {
+          setAdminReports([]);
+          setAdminReportsLoading(false);
+        }
+
         setError("");
       } catch (err) {
         setError(err.message);
@@ -713,6 +737,7 @@ function App() {
       await endpoints.deleteListing(token, listingId);
       setMyListings((current) => current.filter((listing) => listing.id !== listingId));
       setListings((current) => current.filter((listing) => listing.id !== listingId));
+      setAdminReports((current) => current.filter((report) => report.listing.id !== listingId));
       if (selectedListingId === listingId) {
         setSelectedListingId("");
         setSelectedListing(null);
@@ -722,6 +747,30 @@ function App() {
       setError(err.message);
     } finally {
       setDeleteLoadingId("");
+    }
+  };
+
+  const handleReportListing = async (listingId) => {
+    if (!token) {
+      setError("Login first to report a listing.");
+      return;
+    }
+
+    const reason = window.prompt("Why are you reporting this listing?");
+    if (reason === null) {
+      return;
+    }
+
+    setReportLoadingId(listingId);
+    setError("");
+
+    try {
+      await endpoints.reportListing(token, listingId, reason || "Flagged by user");
+      setStatus("Thank you. The listing has been reported for review.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setReportLoadingId("");
     }
   };
 
@@ -965,6 +1014,19 @@ function App() {
     },
   ];
 
+  if (user?.isAdmin) {
+    navItems.splice(navItems.length - 1, 0, {
+      to: "/admin",
+      label: "Admin",
+      icon: (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5h16v14H4z" />
+          <path d="M8 9h8M8 13h8M8 17h4" />
+        </svg>
+      ),
+    });
+  }
+
   const homePage = (
     <section className="home-page">
       <div className="home-hero">
@@ -1169,22 +1231,33 @@ function App() {
                         {listing.price ? `Rs ${listing.price}` : "Swap / negotiable"}
                       </p>
                     </div>
-                    <div className="profile-card-actions">
-                      <button
-                        type="button"
-                        className="secondary-button"
-                        onClick={() => { openListingDetail(listing.id); navigate("/marketplace"); }}
-                      >
-                        View
-                      </button>
-                      <button
-                        type="button"
-                        className="ghost-button"
-                        disabled={deleteLoadingId === listing.id}
-                        onClick={() => handleDeleteListing(listing.id)}
-                      >
-                        {deleteLoadingId === listing.id ? "Removing..." : "Remove"}
-                      </button>
+                    <div className="profile-listing-media">
+                      {listing.images?.[0] ? (
+                        <div className="profile-listing-cover">
+                          <img src={resolveImageUrl(listing.images[0])} alt={listing.title} />
+                        </div>
+                      ) : (
+                        <div className="profile-listing-cover placeholder">
+                          <span>{getListingInitial(listing.title)}</span>
+                        </div>
+                      )}
+                      <div className="profile-card-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => { openListingDetail(listing.id); navigate("/marketplace"); }}
+                        >
+                          View
+                        </button>
+                        <button
+                          type="button"
+                          className="ghost-button"
+                          disabled={deleteLoadingId === listing.id}
+                          onClick={() => handleDeleteListing(listing.id)}
+                        >
+                          {deleteLoadingId === listing.id ? "Removing..." : "Remove"}
+                        </button>
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -1211,22 +1284,33 @@ function App() {
                         {listing.price ? `Rs ${listing.price}` : "Swap / negotiable"}
                       </p>
                     </div>
-                    <div className="profile-card-actions">
-                      <button
-                        type="button"
-                        className="secondary-button"
-                        onClick={() => { openListingDetail(listing.id); navigate("/marketplace"); }}
-                      >
-                        View
-                      </button>
-                      <button
-                        type="button"
-                        className="ghost-button"
-                        disabled={wishlistLoadingId === listing.id}
-                        onClick={(event) => handleToggleWishlist(listing.id, event)}
-                      >
-                        {wishlistLoadingId === listing.id ? "Removing..." : "Remove"}
-                      </button>
+                    <div className="profile-listing-media">
+                      {listing.images?.[0] ? (
+                        <div className="profile-listing-cover">
+                          <img src={resolveImageUrl(listing.images[0])} alt={listing.title} />
+                        </div>
+                      ) : (
+                        <div className="profile-listing-cover placeholder">
+                          <span>{getListingInitial(listing.title)}</span>
+                        </div>
+                      )}
+                      <div className="profile-card-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => { openListingDetail(listing.id); navigate("/marketplace"); }}
+                        >
+                          View
+                        </button>
+                        <button
+                          type="button"
+                          className="ghost-button"
+                          disabled={wishlistLoadingId === listing.id}
+                          onClick={(event) => handleToggleWishlist(listing.id, event)}
+                        >
+                          {wishlistLoadingId === listing.id ? "Removing..." : "Remove"}
+                        </button>
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -1247,6 +1331,71 @@ function App() {
     </section>
   ) : (
     authPanel
+  );
+
+  const adminPage = user && user.isAdmin ? (
+    <section className="panel admin-page standalone-panel">
+      <div className="panel-heading">
+        <p className="eyebrow">Admin moderation</p>
+        <h2>Reported listings</h2>
+      </div>
+      {adminReportsLoading ? (
+        <div className="empty-state">
+          <p>Loading reported listings...</p>
+        </div>
+      ) : adminReports.length ? (
+        <div className="admin-report-list">
+          {adminReports.map((report) => (
+            <article key={report.id} className="profile-listing-card">
+              <div>
+                <h3>{report.listing.title}</h3>
+                <p>{report.listing.author}</p>
+                <p className="listing-meta">
+                  {report.listing.city}, {report.listing.state}
+                </p>
+                <p className="listing-price">
+                  {report.listing.isAvailable ? "Available" : "Not available"}
+                </p>
+                <p className="listing-meta">Reported by {formatName(report.reporter.name)}</p>
+                <p className="listing-note">{report.reason || "No reason provided."}</p>
+              </div>
+              <div className="profile-listing-media">
+                <div className="profile-listing-cover placeholder">
+                  <span>{getListingInitial(report.listing.title)}</span>
+                </div>
+                <div className="profile-card-actions">
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => { openListingDetail(report.listing.id); navigate("/marketplace"); }}
+                  >
+                    View
+                  </button>
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    disabled={deleteLoadingId === report.listing.id}
+                    onClick={() => handleDeleteListing(report.listing.id)}
+                  >
+                    {deleteLoadingId === report.listing.id ? "Removing..." : "Remove listing"}
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <p>No listings have been reported yet.</p>
+        </div>
+      )}
+    </section>
+  ) : (
+    <section className="panel standalone-panel">
+      <div className="empty-state">
+        <p>Admin access is required to view this page.</p>
+      </div>
+    </section>
   );
 
   const marketplacePage = (
@@ -1479,6 +1628,14 @@ function App() {
                 </button>
                 <button type="button" className="secondary-button" onClick={handleOpenSellerConversation}>
                   Message seller
+                </button>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={() => handleReportListing(visibleSelectedListing.id)}
+                  disabled={reportLoadingId === visibleSelectedListing.id}
+                >
+                  {reportLoadingId === visibleSelectedListing.id ? "Reporting..." : "Report listing"}
                 </button>
               </div>
             ) : null}
@@ -1901,6 +2058,7 @@ function App() {
             <Route path="/messages" element={messagesPage} />
             <Route path="/sell" element={sellPage} />
             <Route path="/profile" element={profilePage} />
+            <Route path="/admin" element={adminPage} />
           </Routes>
         </section>
       </main>

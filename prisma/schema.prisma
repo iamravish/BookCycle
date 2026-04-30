@@ -10,125 +10,143 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String    @unique
-  password      String
-  phone         String?
-  avatar        String?
-  city          String?
-  state         String?
-  bio           String?
-  isVerified    Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  password   String
+  phone      String?
+  avatar     String?
+  city       String?
+  state      String?
+  bio        String?
+  isVerified Boolean  @default(false)
+  isAdmin    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  listings      Listing[]
-  offersGiven   Offer[]   @relation("OffersGiven")
-  offersReceived Offer[]  @relation("OffersReceived")
-  sentMessages     Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
-  wishlist      Wishlist[]
-  reviews       Review[]  @relation("ReviewsWritten")
-  reviewsAbout  Review[]  @relation("ReviewsAbout")
+  listings         Listing[]
+  offersGiven      Offer[]         @relation("OffersGiven")
+  offersReceived   Offer[]         @relation("OffersReceived")
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  wishlist         Wishlist[]
+  reviews          Review[]        @relation("ReviewsWritten")
+  reviewsAbout     Review[]        @relation("ReviewsAbout")
+  ListingReport    ListingReport[]
 
   @@map("users")
 }
 
 model Listing {
-  id            String        @id @default(uuid())
-  title         String
-  author        String
-  description   String?
-  isbn          String?
-  genre         Genre?
-  condition     Condition
-  price         Float?
-  listingType   ListingType
-  rentPerDay    Float?
-  images        String[]
-  isAvailable   Boolean       @default(true)
-  views         Int           @default(0)
-  city          String
-  state         String
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id          String      @id @default(uuid())
+  title       String
+  author      String
+  description String?
+  isbn        String?
+  genre       Genre?
+  condition   Condition
+  price       Float?
+  listingType ListingType
+  rentPerDay  Float?
+  images      String[]
+  isAvailable Boolean     @default(true)
+  views       Int         @default(0)
+  city        String
+  state       String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  seller        User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  sellerId      String
+  seller   User   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId String
 
   offers        Offer[]
   wishlisted    Wishlist[]
+  ListingReport ListingReport[]
 
   @@map("listings")
 }
 
 model Offer {
-  id          String      @id @default(uuid())
-  type        OfferType
-  status      OfferStatus @default(PENDING)
-  message     String?
-  price       Float?
-  rentDays    Int?
+  id            String      @id @default(uuid())
+  type          OfferType
+  status        OfferStatus @default(PENDING)
+  message       String?
+  price         Float?
+  rentDays      Int?
   swapBookTitle String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
-  listing     Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  listingId   String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
 
-  buyer       User        @relation("OffersGiven", fields: [buyerId], references: [id])
-  buyerId     String
+  buyer   User   @relation("OffersGiven", fields: [buyerId], references: [id])
+  buyerId String
 
-  seller      User        @relation("OffersReceived", fields: [sellerId], references: [id])
-  sellerId    String
+  seller   User   @relation("OffersReceived", fields: [sellerId], references: [id])
+  sellerId String
 
   @@map("offers")
 }
 
 model Message {
-  id          String    @id @default(uuid())
-  content     String
-  isRead      Boolean   @default(false)
-  createdAt   DateTime  @default(now())
+  id        String   @id @default(uuid())
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  sender      User      @relation("SentMessages", fields: [senderId], references: [id])
-  senderId    String
+  sender   User   @relation("SentMessages", fields: [senderId], references: [id])
+  senderId String
 
-  receiver    User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  receiverId  String
+  receiver   User   @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiverId String
 
   // Optional link to a listing context
-  listingId   String?
+  listingId String?
 
   @@map("messages")
 }
 
 model Wishlist {
-  id          String    @id @default(uuid())
-  createdAt   DateTime  @default(now())
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
-  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  listingId   String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
 
   @@unique([userId, listingId])
   @@map("wishlists")
 }
 
+model ListingReport {
+  id        String   @id @default(uuid())
+  reason    String?
+  createdAt DateTime @default(now())
+
+  reporter   User   @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  reporterId String
+
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
+
+  @@unique([reporterId, listingId])
+  @@map("listing_reports")
+}
+
 model Review {
-  id          String    @id @default(uuid())
-  rating      Int       // 1-5
-  comment     String?
-  createdAt   DateTime  @default(now())
+  id        String   @id @default(uuid())
+  rating    Int // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
 
-  reviewer    User      @relation("ReviewsWritten", fields: [reviewerId], references: [id])
-  reviewerId  String
+  reviewer   User   @relation("ReviewsWritten", fields: [reviewerId], references: [id])
+  reviewerId String
 
-  reviewee    User      @relation("ReviewsAbout", fields: [revieweeId], references: [id])
-  revieweeId  String
+  reviewee   User   @relation("ReviewsAbout", fields: [revieweeId], references: [id])
+  revieweeId String
 
   @@map("reviews")
 }

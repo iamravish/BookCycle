@@ -14,7 +14,7 @@ const authenticate = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, name: true, email: true, city: true, state: true, isVerified: true },
+      select: { id: true, name: true, email: true, city: true, state: true, isVerified: true, isAdmin: true },
     });
 
     if (!user) {
@@ -45,7 +45,7 @@ const optionalAuth = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: { id: true, name: true, email: true, city: true, state: true },
+      select: { id: true, name: true, email: true, city: true, state: true, isAdmin: true },
     });
     req.user = user || null;
     next();
@@ -54,4 +54,11 @@ const optionalAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { authenticate, optionalAuth };
+const authorizeAdmin = (req, res, next) => {
+  if (!req.user?.isAdmin) {
+    return res.status(403).json({ error: "Admin access required." });
+  }
+  next();
+};
+
+module.exports = { authenticate, optionalAuth, authorizeAdmin };

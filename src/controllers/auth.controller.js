@@ -77,7 +77,7 @@ const getMe = async (req, res, next) => {
       select: {
         id: true, name: true, email: true, phone: true,
         avatar: true, city: true, state: true, bio: true,
-        isVerified: true, createdAt: true,
+        isVerified: true, isAdmin: true, createdAt: true,
         _count: { select: { listings: true, reviewsAbout: true } },
       },
     });

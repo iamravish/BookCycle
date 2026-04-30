@@ -258,13 +258,81 @@ const deleteListing = async (req, res, next) => {
 
     const listing = await prisma.listing.findUnique({ where: { id } });
     if (!listing) return res.status(404).json({ error: "Listing not found." });
-    if (listing.sellerId !== req.user.id) {
+    if (listing.sellerId !== req.user.id && !req.user.isAdmin) {
       return res.status(403).json({ error: "You can only delete your own listings." });
     }
 
     await prisma.listing.delete({ where: { id } });
 
     res.json({ message: "Listing deleted successfully." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const reportListing = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    const listing = await prisma.listing.findUnique({ where: { id } });
+    if (!listing) {
+      return res.status(404).json({ error: "Listing not found." });
+    }
+    if (listing.sellerId === req.user.id) {
+      return res.status(403).json({ error: "You cannot report your own listing." });
+    }
+
+    const existingReport = await prisma.listingReport.findUnique({
+      where: {
+        reporterId_listingId: {
+          reporterId: req.user.id,
+          listingId: id,
+        },
+      },
+    });
+
+    if (existingReport) {
+      return res.status(200).json({ message: "You have already reported this listing." });
+    }
+
+    await prisma.listingReport.create({
+      data: {
+        listingId: id,
+        reporterId: req.user.id,
+        reason: reason?.trim() || "Flagged by user",
+      },
+    });
+
+    res.status(201).json({ message: "Listing reported successfully." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getListingReports = async (req, res, next) => {
+  try {
+    const reports = await prisma.listingReport.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            city: true,
+            state: true,
+            sellerId: true,
+            isAvailable: true,
+          },
+        },
+        reporter: {
+          select: { id: true, name: true, email: true },
+        },
+      },
+    });
+
+    res.json({ reports });
   } catch (err) {
     next(err);
   }
@@ -303,4 +371,13 @@ const getMyListings = async (req, res, next) => {
   }
 };
 
-module.exports = { getListings, getListing, createListing, updateListing, deleteListing, getMyListings };
+module.exports = {
+  getListings,
+  getListing,
+  createListing,
+  updateListing,
+  deleteListing,
+  getMyListings,
+  reportListing,
+  getListingReports,
+};

@@ -425,11 +425,42 @@
   display: grid;
   gap: 16px;
   grid-template-columns: 1fr auto;
-  align-items: center;
+  align-items: flex-start;
   padding: 18px;
   border-radius: 12px;
   background: #ffffff;
   border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.profile-listing-media {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  min-width: 124px;
+}
+
+.profile-listing-cover {
+  width: 124px;
+  height: 160px;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.profile-listing-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-listing-cover.placeholder {
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  color: var(--accent-strong);
+  font-size: 2rem;
+  font-weight: 800;
 }
 
 .profile-card-actions {

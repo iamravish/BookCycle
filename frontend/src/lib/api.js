@@ -71,6 +71,9 @@ export const endpoints = {
     apiRequest(withQuery("/api/listings/my", params), { token }),
   deleteListing: (token, listingId) =>
     apiRequest(`/api/listings/${listingId}`, { method: "DELETE", token }),
+  reportListing: (token, listingId, reason) =>
+    apiRequest(`/api/listings/${listingId}/report`, { method: "POST", token, body: { reason } }),
+  getListingReports: (token) => apiRequest("/api/listings/reports", { token }),
   createOffer: (token, payload) =>
     apiRequest("/api/offers", { method: "POST", token, body: payload }),
   getSentOffers: (token) => apiRequest("/api/offers/sent", { token }),
