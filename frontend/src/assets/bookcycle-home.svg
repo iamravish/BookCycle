@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Readers exchanging books in a neighborhood marketplace</title>
+  <desc id="desc">An illustrated scene with people, books, shelves, and exchange cards for the BookCycle homepage.</desc>
+  <defs>
+    <linearGradient id="wall" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff7ed"/>
+      <stop offset="0.52" stop-color="#eefdf8"/>
+      <stop offset="1" stop-color="#f8fafc"/>
+    </linearGradient>
+    <linearGradient id="bookA" x1="0" x2="1">
+      <stop offset="0" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="bookB" x1="0" x2="1">
+      <stop offset="0" stop-color="#ea580c"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#334155" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="820" rx="36" fill="url(#wall)"/>
+  <path d="M0 610 C210 548 334 654 514 610 C705 563 836 456 1200 540 L1200 820 L0 820 Z" fill="#dff7ef"/>
+  <path d="M0 666 C185 614 356 712 538 668 C768 612 943 624 1200 690 L1200 820 L0 820 Z" fill="#fed7aa"/>
+  <g filter="url(#shadow)">
+    <rect x="136" y="146" width="376" height="504" rx="26" fill="#ffffff"/>
+    <rect x="168" y="190" width="312" height="26" rx="13" fill="#0f172a"/>
+    <rect x="168" y="252" width="312" height="16" rx="8" fill="#cbd5e1"/>
+    <rect x="168" y="312" width="312" height="16" rx="8" fill="#cbd5e1"/>
+    <rect x="168" y="372" width="312" height="16" rx="8" fill="#cbd5e1"/>
+    <rect x="188" y="228" width="36" height="96" rx="8" fill="#0f766e"/>
+    <rect x="236" y="228" width="28" height="96" rx="8" fill="#f97316"/>
+    <rect x="276" y="228" width="42" height="96" rx="8" fill="#2563eb"/>
+    <rect x="330" y="228" width="30" height="96" rx="8" fill="#facc15"/>
+    <rect x="374" y="228" width="54" height="96" rx="8" fill="#7c3aed"/>
+    <rect x="188" y="348" width="64" height="92" rx="8" fill="#14b8a6"/>
+    <rect x="264" y="348" width="34" height="92" rx="8" fill="#fb7185"/>
+    <rect x="310" y="348" width="76" height="92" rx="8" fill="#38bdf8"/>
+    <rect x="398" y="348" width="30" height="92" rx="8" fill="#84cc16"/>
+    <rect x="180" y="488" width="280" height="96" rx="18" fill="#f8fafc"/>
+    <path d="M214 540 C260 500 310 582 356 536 C384 510 421 522 448 558" fill="none" stroke="#0f766e" stroke-width="14" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="638" y="128" width="384" height="246" rx="30" fill="#ffffff"/>
+    <rect x="680" y="174" width="126" height="18" rx="9" fill="#0f172a"/>
+    <rect x="680" y="212" width="264" height="14" rx="7" fill="#cbd5e1"/>
+    <rect x="680" y="244" width="218" height="14" rx="7" fill="#cbd5e1"/>
+    <rect x="680" y="294" width="94" height="42" rx="8" fill="#0f766e"/>
+    <rect x="792" y="294" width="94" height="42" rx="8" fill="#f97316"/>
+    <rect x="904" y="294" width="70" height="42" rx="8" fill="#e2e8f0"/>
+  </g>
+  <g filter="url(#shadow)">
+    <path d="M621 520 L804 418 C832 402 868 413 883 442 L943 558 C959 587 948 622 919 638 L737 740 C708 756 672 746 657 716 L597 601 C582 572 592 536 621 520 Z" fill="#ffffff"/>
+    <path d="M654 546 L803 463 C821 453 844 460 854 478 L894 555 C904 573 897 596 879 606 L730 689 C712 699 689 692 679 674 L639 597 C629 579 636 556 654 546 Z" fill="url(#bookA)"/>
+    <path d="M720 508 L860 583" stroke="#ccfbf1" stroke-width="12" stroke-linecap="round" opacity=".72"/>
+    <path d="M686 564 L826 639" stroke="#ccfbf1" stroke-width="12" stroke-linecap="round" opacity=".72"/>
+  </g>
+  <g filter="url(#shadow)">
+    <path d="M465 520 C517 498 579 518 604 568 C627 614 602 675 548 702 C493 729 427 707 405 659 C383 610 411 542 465 520 Z" fill="#ffffff"/>
+    <path d="M450 616 C498 586 534 586 588 612 L572 656 C522 632 494 632 434 660 Z" fill="url(#bookB)"/>
+    <circle cx="477" cy="474" r="42" fill="#f8c9a8"/>
+    <path d="M436 464 C446 416 514 405 535 451 C510 438 481 445 455 474 Z" fill="#0f172a"/>
+    <path d="M436 520 C468 494 510 494 545 520 L523 604 L458 604 Z" fill="#2563eb"/>
+  </g>
+  <g filter="url(#shadow)">
+    <circle cx="849" cy="450" r="42" fill="#bfe4cf"/>
+    <path d="M817 450 C820 406 883 398 895 444 C870 430 844 432 823 459 Z" fill="#334155"/>
+    <path d="M803 496 C840 468 886 470 917 504 L888 596 L826 596 Z" fill="#0f766e"/>
+    <path d="M755 572 C803 538 845 537 904 560 L892 604 C835 581 796 584 742 620 Z" fill="#f97316"/>
+  </g>
+  <g>
+    <rect x="130" y="694" width="942" height="24" rx="12" fill="#0f172a" opacity=".12"/>
+    <rect x="184" y="718" width="834" height="16" rx="8" fill="#0f172a" opacity=".08"/>
+  </g>
+</svg>
