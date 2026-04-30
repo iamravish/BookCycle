@@ -388,6 +388,69 @@
   gap: 10px;
 }
 
+.profile-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.tab-button {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  padding: 10px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.profile-panel-content {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.profile-listing-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-listing-card {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 18px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.profile-card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.profile-listing-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.listing-meta,
+.listing-price {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .profile-meta span {
   background: rgba(15, 23, 42, 0.04);
   color: var(--muted);
@@ -1026,6 +1089,14 @@
 .messages-panel,
 .create-panel {
   min-height: 540px;
+}
+
+@media (min-width: 1081px) {
+  .wishlist-panel {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+  }
 }
 
 .detail-card {

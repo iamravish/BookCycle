@@ -67,6 +67,10 @@ export const endpoints = {
   getWishlist: (token) => apiRequest("/api/users/wishlist", { token }),
   toggleWishlist: (token, listingId) =>
     apiRequest(`/api/users/wishlist/${listingId}`, { method: "POST", token }),
+  getMyListings: (token, params = {}) =>
+    apiRequest(withQuery("/api/listings/my", params), { token }),
+  deleteListing: (token, listingId) =>
+    apiRequest(`/api/listings/${listingId}`, { method: "DELETE", token }),
   createOffer: (token, payload) =>
     apiRequest("/api/offers", { method: "POST", token, body: payload }),
   getSentOffers: (token) => apiRequest("/api/offers/sent", { token }),

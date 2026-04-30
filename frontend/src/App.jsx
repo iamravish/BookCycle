@@ -1,5 +1,5 @@
-import { startTransition, useEffect, useState } from "react";
-import { Link, NavLink, Route, Routes } from "react-router-dom";
+import { startTransition, useEffect, useRef, useState } from "react";
+import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import homepageImage from "./assets/bookcycle-home.svg";
 import marketplaceImage from "./assets/marketplace-shelf.svg";
@@ -116,10 +116,15 @@ const getInitial = (name, fallback = "R") => formatName(name, fallback).slice(0,
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("bookswap-token") || "");
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
   const [listings, setListings] = useState([]);
   const [selectedListingId, setSelectedListingId] = useState("");
   const [selectedListing, setSelectedListing] = useState(null);
   const [wishlist, setWishlist] = useState([]);
+  const [myListings, setMyListings] = useState([]);
+  const [profileTab, setProfileTab] = useState("published");
+  const [deleteLoadingId, setDeleteLoadingId] = useState("");
+  const detailPanelRef = useRef(null);
   const [wishlistIds, setWishlistIds] = useState([]);
   const [sentOffers, setSentOffers] = useState([]);
   const [receivedOffers, setReceivedOffers] = useState([]);
@@ -264,6 +269,18 @@ function App() {
   }, [selectedListingId]);
 
   useEffect(() => {
+    if (!selectedListingId || !detailPanelRef.current) {
+      return;
+    }
+
+    detailPanelRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+      inline: "nearest",
+    });
+  }, [selectedListingId]);
+
+  useEffect(() => {
     if (!token) {
       localStorage.removeItem("bookswap-token");
       return;
@@ -273,7 +290,7 @@ function App() {
 
     const loadDashboardData = async () => {
       try {
-        const [profileData, wishlistData, sentData, receivedData, inboxData, unreadData] =
+        const [profileData, wishlistData, sentData, receivedData, inboxData, unreadData, myListingsData] =
           await Promise.all([
             endpoints.me(token),
             endpoints.getWishlist(token),
@@ -281,6 +298,7 @@ function App() {
             endpoints.getReceivedOffers(token),
             endpoints.getInbox(token),
             endpoints.getUnreadCount(token),
+            endpoints.getMyListings(token),
           ]);
 
         setUser(profileData.user);
@@ -290,6 +308,7 @@ function App() {
         setReceivedOffers(receivedData.offers || []);
         setConversations(inboxData.conversations || []);
         setUnreadCount(unreadData.unreadCount || 0);
+        setMyListings(myListingsData.listings || []);
         setSelectedConversationUserId(
           (current) => current || inboxData.conversations?.[0]?.partner?.id || "",
         );
@@ -678,6 +697,31 @@ function App() {
       setError(err.message);
     } finally {
       setWishlistLoadingId("");
+    }
+  };
+
+  const handleDeleteListing = async (listingId) => {
+    if (!token) {
+      setError("Login first to manage your listings.");
+      return;
+    }
+
+    setDeleteLoadingId(listingId);
+    setError("");
+
+    try {
+      await endpoints.deleteListing(token, listingId);
+      setMyListings((current) => current.filter((listing) => listing.id !== listingId));
+      setListings((current) => current.filter((listing) => listing.id !== listingId));
+      if (selectedListingId === listingId) {
+        setSelectedListingId("");
+        setSelectedListing(null);
+      }
+      setStatus("Listing removed successfully.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeleteLoadingId("");
     }
   };
 
@@ -1093,6 +1137,109 @@ function App() {
             <Link className="secondary-button" to="/offers">Review offers</Link>
             <Link className="secondary-button" to="/messages">Open inbox</Link>
           </div>
+          <div className="profile-tabs">
+            <button
+              type="button"
+              className={`tab-button${profileTab === "published" ? " active" : ""}`}
+              onClick={() => setProfileTab("published")}
+            >
+              Published listings
+            </button>
+            <button
+              type="button"
+              className={`tab-button${profileTab === "wishlist" ? " active" : ""}`}
+              onClick={() => setProfileTab("wishlist")}
+            >
+              Wishlist books
+            </button>
+          </div>
+
+          <div className="profile-panel-content">
+            {profileTab === "published" && myListings.length > 0 && (
+              <div className="profile-listing-grid">
+                {myListings.map((listing) => (
+                  <article key={listing.id} className="profile-listing-card">
+                    <div>
+                      <h3>{listing.title}</h3>
+                      <p>{listing.author}</p>
+                      <p className="listing-meta">
+                        {listing.city}, {listing.state}
+                      </p>
+                      <p className="listing-price">
+                        {listing.price ? `Rs ${listing.price}` : "Swap / negotiable"}
+                      </p>
+                    </div>
+                    <div className="profile-card-actions">
+                      <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => { openListingDetail(listing.id); navigate("/marketplace"); }}
+                      >
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        disabled={deleteLoadingId === listing.id}
+                        onClick={() => handleDeleteListing(listing.id)}
+                      >
+                        {deleteLoadingId === listing.id ? "Removing..." : "Remove"}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+
+            {profileTab === "published" && myListings.length === 0 && (
+              <div className="empty-state">
+                <p>You haven't published any listings yet. Use the sell page to add your next book.</p>
+              </div>
+            )}
+
+            {profileTab === "wishlist" && wishlist.length > 0 && (
+              <div className="profile-listing-grid">
+                {wishlist.map((listing) => (
+                  <article key={listing.id} className="profile-listing-card">
+                    <div>
+                      <h3>{listing.title}</h3>
+                      <p>{listing.author}</p>
+                      <p className="listing-meta">
+                        {listing.city}, {listing.state}
+                      </p>
+                      <p className="listing-price">
+                        {listing.price ? `Rs ${listing.price}` : "Swap / negotiable"}
+                      </p>
+                    </div>
+                    <div className="profile-card-actions">
+                      <button
+                        type="button"
+                        className="secondary-button"
+                        onClick={() => { openListingDetail(listing.id); navigate("/marketplace"); }}
+                      >
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        disabled={wishlistLoadingId === listing.id}
+                        onClick={(event) => handleToggleWishlist(listing.id, event)}
+                      >
+                        {wishlistLoadingId === listing.id ? "Removing..." : "Remove"}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+
+            {profileTab === "wishlist" && wishlist.length === 0 && (
+              <div className="empty-state">
+                <p>Your wishlist is empty. Save books while browsing to keep them here.</p>
+              </div>
+            )}
+          </div>
+
           <button type="button" className="ghost-button profile-logout" onClick={handleLogout}>
             Log out
           </button>
@@ -1250,7 +1397,7 @@ function App() {
         </div>
       </section>
 
-      <section className="panel detail-panel">
+      <section className="panel detail-panel" ref={detailPanelRef}>
         <div className="panel-heading">
           <p className="eyebrow">Listing detail</p>
           <h2>Detailed book view</h2>
