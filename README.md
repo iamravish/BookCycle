@@ -1,10 +1,10 @@
-# ?? BookSwap Backend
+# BookCycle
 
-BookSwap is the marketplace API for buying, selling, renting, and swapping books locally.
+BookCycle is the marketplace API for buying, selling, renting, and swapping books locally.
 
 Built with **Node.js + Express**, **PostgreSQL**, and **Prisma ORM**.
 
-## ?? Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js v18+
@@ -60,15 +60,15 @@ npm run client:dev
 bookswap-backend/
 +-- frontend/                # React app
 +-- prisma/
-¦   +-- migrations/         # Prisma migration files
-¦   +-- schema.prisma        # DB schema and enums
-¦   +-- seed.js              # sample data seeding
+Â¦   +-- migrations/         # Prisma migration files
+Â¦   +-- schema.prisma        # DB schema and enums
+Â¦   +-- seed.js              # sample data seeding
 +-- src/
-¦   +-- controllers/         # request handlers
-¦   +-- middleware/          # auth, uploads, error handling
-¦   +-- routes/              # Express routers
-¦   +-- utils/               # shared helpers
-¦   +-- index.js             # app entrypoint
+Â¦   +-- controllers/         # request handlers
+Â¦   +-- middleware/          # auth, uploads, error handling
+Â¦   +-- routes/              # Express routers
+Â¦   +-- utils/               # shared helpers
+Â¦   +-- index.js             # app entrypoint
 +-- uploads/                 # image storage
 +-- .env.example
 +-- package.json
@@ -78,43 +78,43 @@ bookswap-backend/
 
 ### Auth
 
-- `POST /api/auth/register` — create account
-- `POST /api/auth/login` — login and receive JWT
-- `GET /api/auth/me` — current user profile
-- `PATCH /api/auth/change-password` — update password
+- `POST /api/auth/register` â€” create account
+- `POST /api/auth/login` â€” login and receive JWT
+- `GET /api/auth/me` â€” current user profile
+- `PATCH /api/auth/change-password` â€” update password
 
 ### Listings
 
-- `GET /api/listings` — browse listings
-- `GET /api/listings/:id` — listing detail
-- `GET /api/listings/my` — current user listings
-- `POST /api/listings` — create listing
-- `PATCH /api/listings/:id` — update listing
-- `DELETE /api/listings/:id` — delete listing
-- `POST /api/listings/:id/report` — report a listing
-- `GET /api/listings/reports` — admin only list of reported listings
+- `GET /api/listings` â€” browse listings
+- `GET /api/listings/:id` â€” listing detail
+- `GET /api/listings/my` â€” current user listings
+- `POST /api/listings` â€” create listing
+- `PATCH /api/listings/:id` â€” update listing
+- `DELETE /api/listings/:id` â€” delete listing
+- `POST /api/listings/:id/report` â€” report a listing
+- `GET /api/listings/reports` â€” admin only list of reported listings
 
 ### Offers
 
-- `POST /api/offers` — create an offer
-- `GET /api/offers/sent` — sent offers
-- `GET /api/offers/received` — received offers
-- `PATCH /api/offers/:id/respond` — accept or reject
+- `POST /api/offers` â€” create an offer
+- `GET /api/offers/sent` â€” sent offers
+- `GET /api/offers/received` â€” received offers
+- `PATCH /api/offers/:id/respond` â€” accept or reject
 
 ### Messages
 
-- `POST /api/messages` — send a message
-- `GET /api/messages/inbox` — fetch conversations
-- `GET /api/messages/unread/count` — unread badge
-- `GET /api/messages/:userId` — fetch conversation with a user
+- `POST /api/messages` â€” send a message
+- `GET /api/messages/inbox` â€” fetch conversations
+- `GET /api/messages/unread/count` â€” unread badge
+- `GET /api/messages/:userId` â€” fetch conversation with a user
 
 ### Users
 
-- `GET /api/users/:id` — public profile
-- `PATCH /api/users/profile` — update own profile
-- `GET /api/users/wishlist` — get wishlist
-- `POST /api/users/wishlist/:listingId` — toggle wishlist
-- `POST /api/users/:id/review` — leave a review
+- `GET /api/users/:id` â€” public profile
+- `PATCH /api/users/profile` â€” update own profile
+- `GET /api/users/wishlist` â€” get wishlist
+- `POST /api/users/wishlist/:listingId` â€” toggle wishlist
+- `POST /api/users/:id/review` â€” leave a review
 
 ## ?? Admin / Moderation
 
